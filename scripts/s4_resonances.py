@@ -5,10 +5,11 @@ pole E_r - i Gamma/2 in the lower continuum.  Near threshold the width obeys the
 Gamow law  ln(Gamma/Delta) = c_G - 2S,  2S = 2 pi beta (|E_r|/k - 1), where
 beta is the strength of the *unscreened* Coulomb tail.
 """
+import sys
 import time
 
 import numpy as np
-from common import C, DOUBLE, plt, save_json, savefig, write_table
+from common import C, DOUBLE, load_json, plt, save_json, savefig, sci, write_table
 
 from collapse2d.analysis import critical_charge, gamow_exponent, make_solver, track_resonance
 from collapse2d.materials import gapped_graphene
@@ -96,20 +97,29 @@ def main():
     fig.tight_layout()
     savefig(fig, "fig_resonances")
 
-    o = out["rpa/0.03"]
+    resonance_table(out["rpa/0.03"])
+    save_json({"cases": out, "gamow_c": cG, "gamow_points": pts}, "s4_resonances")
+
+
+def resonance_table(o):
     m_eV = o["Delta_eV"]
     body = ["\\begin{tabular}{lcccc}", "\\hline\\hline",
             "$Z/Z_c$ & $E_r/\\Delta$ & $E_r$ (meV) & $\\Gamma$ (meV) & method\\\\", "\\hline"]
     for Z, E, G, f in zip(o["Z_res"], o["E_res"], o["G_res"], o["flag"]):
         if f == "fail" or not np.isfinite(E):
             continue
-        Gs = f"{G * m_eV * 1000:.2e}".replace("e-0", "e-").replace("e+0", "e")
-        mant, ex = Gs.split("e")
-        body.append(f"{Z / o['Zc']:.3f} & {E:.5f} & {E * m_eV * 1000:.3f} & ${mant}\\times10^{{{int(ex)}}}$ & {f}\\\\")
+        body.append(f"{Z / o['Zc']:.3f} & ${E:.5f}$ & ${E * m_eV * 1000:.3f}$ & {width(G * m_eV * 1000)} & {f}\\\\")
     body += ["\\hline\\hline", "\\end{tabular}"]
     write_table("tab_resonances", "\n".join(body))
-    save_json({"cases": out, "gamow_c": cG, "gamow_points": pts}, "s4_resonances")
+
+
+def width(G):
+    """Widths of order 1 meV as plain decimals, the rest in powers of ten."""
+    return f"${G:.2f}$" if 0.1 <= G < 100 else sci(G, 2)
 
 
 if __name__ == "__main__":
-    main()
+    if "--tables" in sys.argv:          # rewrite the table from saved data
+        resonance_table(load_json("s4_resonances")["cases"]["rpa/0.03"])
+    else:
+        main()

@@ -81,7 +81,7 @@ def plot():
     gs = fig.add_gridspec(1, 5, width_ratios=[1, 1, 0.06, 0.7, 1.1], wspace=0.12)
     for k, (Z, rho) in enumerate(maps.items()):
         ax = fig.add_subplot(gs[0, k])
-        im = ax.pcolormesh(r_map, E_eV * 1000, np.log10(np.maximum(rho, 1e-4)), shading="auto",
+        im = ax.pcolormesh(r_map, E_eV * 1000, np.log10(np.maximum(rho, 1e-4)), shading="auto", rasterized=True,
                            cmap="magma", vmin=-2.5, vmax=0.5)
         ax.axhline(-GAP / 2 * 1000, color="w", lw=0.4, ls=":")
         ax.axhline(GAP / 2 * 1000, color="w", lw=0.4, ls=":")

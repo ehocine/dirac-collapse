@@ -83,6 +83,12 @@ def asymptotic_cG(points):
     return float(p[k, 1]), np.nan, False
 
 
+def length(x):
+    """m r0 for the table: powers of ten below 0.01 written as such."""
+    e = np.log10(x)
+    return f"$10^{{{int(round(e))}}}$" if x < 0.01 and abs(e - round(e)) < 1e-9 else f"{x:g}"
+
+
 def plot():
     from common import load_json
     g = load_json("s8_gamow")
@@ -104,7 +110,7 @@ def plot():
                 cell = f"${cG:.2f}$"
             else:
                 cell = f"$\\approx{cG:.2f}$"
-            rows.append(f"{kind} & {c['mr0']:g} & {c['beta_c']:.4f} & {cell}\\\\")
+            rows.append(f"{kind} & {length(c['mr0'])} & {c['beta_c']:.4f} & {cell}\\\\")
             if np.isfinite(cG):
                 xs.append(c["beta_c"]); ys.append(cG); es.append(sd if ok else 0.0)
                 if not ok:

@@ -8,10 +8,11 @@
 6. resonances: Siegert poles (two rotation angles) vs Lorentzian fits of the
    energy-normalised inner weight on the real axis
 """
+import sys
 import time
 
 import numpy as np
-from common import save_json, sci, write_table
+from common import load_json, save_json, sci, write_table
 from scipy.integrate import dblquad
 from scipy.special import struve, y0
 
@@ -122,19 +123,26 @@ def main():
     body += ["\\hline\\hline", "\\end{tabular}"]
     write_table("tab_validation", "\n".join(body))
 
-    body = ["\\begin{tabular}{lcccccc}", "\\hline\\hline",
-            "$\\beta$ & \\multicolumn{2}{c}{Lorentzian fit (real $E$)} & \\multicolumn{2}{c}{Siegert pole} & $\\theta$-dependence\\\\",
-            " & $E_r/m$ & $\\Gamma/m$ & $E_r/m$ & $\\Gamma/m$ & of $\\Gamma$\\\\", "\\hline"]
-    for b, Ef, Gf, Es, Gs, th in res_rows:
-        body.append(f"{b} & {Ef:.6f} & {Gf:.5e} & {Es:.6f} & {Gs:.5e} & {sci(th)}\\\\".replace("e-0", "e-"))
-    body += ["\\hline\\hline", "\\end{tabular}"]
-    write_table("tab_resonance_check", "\n".join(body))
+    resonance_table(res_rows)
     save_json(rec, "s1_validation")
     for r_ in rows:
         print(r_)
 
 
+def resonance_table(res_rows):
+    body = ["\\begin{tabular}{lccccc}", "\\hline\\hline",
+            "$\\beta$ & \\multicolumn{2}{c}{Lorentzian fit (real $E$)} & \\multicolumn{2}{c}{Siegert pole} & $\\theta$-dependence\\\\",
+            " & $E_r/m$ & $\\Gamma/m$ & $E_r/m$ & $\\Gamma/m$ & of $\\Gamma$\\\\", "\\hline"]
+    for b, Ef, Gf, Es, Gs, th in res_rows:
+        body.append(f"{b} & ${Ef:.6f}$ & {sci(Gf, 5)} & ${Es:.6f}$ & {sci(Gs, 5)} & {sci(th)}\\\\")
+    body += ["\\hline\\hline", "\\end{tabular}"]
+    write_table("tab_resonance_check", "\n".join(body))
+
+
 if __name__ == "__main__":
+    if "--tables" in sys.argv:          # rewrite the resonance table from saved data
+        resonance_table(load_json("s1_validation")["resonances"])
+        sys.exit()
     t = time.time()
     main()
     print("done in %.0fs" % (time.time() - t))
