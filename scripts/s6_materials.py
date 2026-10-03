@@ -1,4 +1,4 @@
-"""Table V: critical charges for representative gapped 2D Dirac systems.
+"""Table VIII: critical charges for representative gapped 2D Dirac systems.
 
 Impurity at height d = 0.3 nm.  For graphene the Dirac-sea polarization (N = 4)
 is included; for the TMDs the Keldysh length r_K already contains the interband
@@ -11,7 +11,7 @@ al. 2018), kappa = 3.05; SiC: eps ~ 9.7, kappa = 5.35; gap 0.26 eV (Zhou et al. 
 import time
 
 import numpy as np
-from common import save_json, write_table
+from common import load_json, save_json, write_table
 
 from collapse2d.analysis import critical_charge, make_solver
 from collapse2d.materials import gapped_graphene, mos2, wse2
@@ -41,15 +41,22 @@ def main():
             cells[label] = critical_charge(S, Z_lo=0.1, Z_hi=80.0, n_scan=240)
         rows.append((name, gap, mat.kappa, mat.alpha0 / mat.kappa, cells))
         print(name, gap, cells, "%.0fs" % (time.time() - t))
-    body = ["\\begin{tabular}{llcccccc}", "\\hline\\hline",
+    save_json({"rows": [(r[0], r[1], r[2], r[3], r[4]) for r in rows]}, "s6_materials")
+
+    table()
+
+
+def table():
+    rows = load_json("s6_materials")["rows"]
+    body = ["\\begin{tabular}{llccccc}", "\\hline\\hline",
             "system & $2\\Delta$ & $\\kappa$ & $\\alpha_0/\\kappa$ & $Z_c$ (const.\\ $\\kappa$) & $Z_c$ (screened) & $Z_c$ (+ gate, 30 nm)\\\\",
             "\\hline"]
     for name, gap, kap, a, c in rows:
         body.append(f"{name} & {gap} & {kap} & {a:.2f} & {c['const']:.2f} & {c['scr']:.2f} & {c['gate']:.2f}\\\\")
     body += ["\\hline\\hline", "\\end{tabular}"]
     write_table("tab_materials", "\n".join(body))
-    save_json({"rows": [(r[0], r[1], r[2], r[3], r[4]) for r in rows]}, "s6_materials")
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    table() if "--tables" in sys.argv else main()

@@ -1,4 +1,4 @@
-"""Fig. 4 + Table IV: diving of the j = 1/2 level and atomic-collapse resonances.
+"""Fig. 3 + Table VII: diving of the j = 1/2 level and atomic-collapse resonances.
 
 Below Z_c the level is bound (E > -Delta); above Z_c it continues as a Siegert
 pole E_r - i Gamma/2 in the lower continuum.  Near threshold the width obeys the
@@ -53,6 +53,35 @@ def main():
     cG = float(np.mean(pts[pts[:, 0] > 8, 1])) if np.any(pts[:, 0] > 8) else float(np.mean(pts[:, 1]))
     print("Gamow constant c_G =", cG, "spread", np.std(pts[pts[:, 0] > 8, 1]) if np.any(pts[:, 0] > 8) else 0)
 
+    save_json({"cases": out, "gamow_c": cG, "gamow_points": pts}, "s4_resonances")
+    plot()
+
+
+def consistent(o):
+    """Mask of resonance points that continue the tracked pole.
+
+    The pole tracker occasionally jumps to another branch far above threshold.
+    E_r must decrease and Gamma must not spike as Z grows: a point is dropped if
+    it lies above the last accepted E_r, or if its width is a strict local
+    maximum among its finite neighbours."""
+    E = np.array(o["E_res"], float)
+    G = np.array(o["G_res"], float)
+    ok = np.array([f != "fail" for f in o["flag"]]) & np.isfinite(E) & np.isfinite(G)
+    keep = np.zeros(len(E), bool)
+    last = np.inf
+    for i in np.nonzero(ok)[0]:
+        prev = [k for k in range(i - 1, -1, -1) if ok[k]][:1]
+        nxt = [k for k in range(i + 1, len(E)) if ok[k]][:1]
+        spike = prev and nxt and G[i] > G[prev[0]] and G[i] > G[nxt[0]]
+        if E[i] < last and not spike:
+            keep[i] = True
+            last = E[i]
+    return keep
+
+
+def plot():
+    d = load_json("s4_resonances")
+    out, cG = d["cases"], d["gamow_c"]
     # ---- figure ----
     fig, axs = plt.subplots(1, 2, figsize=DOUBLE)
     ax = axs[0]
@@ -60,7 +89,7 @@ def main():
         o = out[f"{model}/0.03"]
         lab = "constant $\\kappa$" if model == "bare" else "Dirac-sea RPA"
         ax.plot(o["Z_bound"], o["E_bound"], "-", color=col, label=lab)
-        ok = [i for i, f in enumerate(o["flag"]) if f != "fail" and o["G_res"][i] < 2 * (abs(o["E_res"][i]) - 1)]
+        ok = [i for i in np.nonzero(consistent(o))[0] if o["G_res"][i] < 2 * (abs(o["E_res"][i]) - 1)]
         Z = np.array(o["Z_res"])[ok]
         E = np.array(o["E_res"])[ok]
         G = np.array(o["G_res"])[ok]
@@ -83,7 +112,7 @@ def main():
         s = np.array(o["twoS"])
         G = np.array(o["G_res"])
         siegert_pts = np.array([f == "siegert" for f in o["flag"]])
-        ok = siegert_pts & np.isfinite(G) & (G > 0)
+        ok = siegert_pts & consistent(o) & (G > 0)
         ax.semilogy(s[ok], G[ok], mk[gp], ms=3.5, color=col, mfc="none" if model == "bare" else col,
                     label=f"{'bare' if model == 'bare' else 'RPA'}, {float(gp) * 1000:.0f} meV")
     ss = np.linspace(0, 40, 100)
@@ -98,15 +127,14 @@ def main():
     savefig(fig, "fig_resonances")
 
     resonance_table(out["rpa/0.03"])
-    save_json({"cases": out, "gamow_c": cG, "gamow_points": pts}, "s4_resonances")
 
 
 def resonance_table(o):
     m_eV = o["Delta_eV"]
     body = ["\\begin{tabular}{lcccc}", "\\hline\\hline",
             "$Z/Z_c$ & $E_r/\\Delta$ & $E_r$ (meV) & $\\Gamma$ (meV) & method\\\\", "\\hline"]
-    for Z, E, G, f in zip(o["Z_res"], o["E_res"], o["G_res"], o["flag"]):
-        if f == "fail" or not np.isfinite(E):
+    for Z, E, G, f, ok in zip(o["Z_res"], o["E_res"], o["G_res"], o["flag"], consistent(o)):
+        if not ok:
             continue
         body.append(f"{Z / o['Zc']:.3f} & ${E:.5f}$ & ${E * m_eV * 1000:.3f}$ & {width(G * m_eV * 1000)} & {f}\\\\")
     body += ["\\hline\\hline", "\\end{tabular}"]
@@ -119,7 +147,7 @@ def width(G):
 
 
 if __name__ == "__main__":
-    if "--tables" in sys.argv:          # rewrite the table from saved data
-        resonance_table(load_json("s4_resonances")["cases"]["rpa/0.03"])
+    if "--plot" in sys.argv or "--tables" in sys.argv:   # figure and table from saved data
+        plot()
     else:
         main()

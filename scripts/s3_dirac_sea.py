@@ -1,4 +1,4 @@
-"""Fig. 3 + Table III: critical charge of an impurity on gapped graphene.
+"""Fig. 1 + Table III: critical charge of an impurity on gapped graphene.
 
 Models (impurity at height d = 0.3 nm, graphene on hBN, kappa = 2.5):
   bare    constant dielectric screening kappa
@@ -8,7 +8,7 @@ Models (impurity at height d = 0.3 nm, graphene on hBN, kappa = 2.5):
 import time
 
 import numpy as np
-from common import C, DOUBLE, plt, save_json, savefig, write_table
+from common import C, DOUBLE, load_json, plt, save_json, savefig, write_table
 
 from collapse2d.analysis import critical_charge, make_solver
 from collapse2d.materials import gapped_graphene
@@ -39,6 +39,19 @@ def main():
         eps_ratio.append([P.eps(np.array([c * mat.m]))[0] / KAPPA for c in (0.5, 1.0, 2.0)])
     eps_ratio = np.array(eps_ratio)
 
+    save_json({"gaps": GAPS, "results": res, "eps_ratio_at_m_2m": eps_ratio, "kappa": KAPPA, "d": D_IMP},
+              "s3_dirac_sea")
+    ratio = np.array(res["RPA"]["Zc1"]) / np.array(res["bare"]["Zc1"])
+    print("Zc(RPA)/Zc(bare):", np.round(ratio, 3))
+    print("eps(q=m/2, m, 2m)/kappa:", np.round(eps_ratio, 3))
+
+    plot()
+
+
+def plot():
+    d = load_json("s3_dirac_sea")
+    res = d["results"]
+    gaps = np.array(d["gaps"])
     # ---- figure ----
     fig, axs = plt.subplots(1, 2, figsize=DOUBLE)
     ax = axs[0]
@@ -54,7 +67,7 @@ def main():
     ax.axhline(KAPPA / (KAPPA + np.pi * mat.alpha0 / 2), color=C["grey"], lw=0.5, ls="--")
     ax.text(0.06, KAPPA / (KAPPA + np.pi * mat.alpha0 / 2) + 0.02, "$\\kappa/\\kappa_\\infty$", fontsize=7, color=C["grey"])
     ax.set_xlabel("$r$ (nm)")
-    ax.set_ylabel("$Z_{\\rm eff}(r)/Z=-\\kappa rV(r)/(Ze^2)$")
+    ax.set_ylabel("$Z_{\\rm eff}(r)/Z=-\\kappa rU(r)/(Z\\alpha_0)$")
     ax.set_ylim(0, 1.05)
     ax.legend(frameon=False, fontsize=6)
     ax.set_title("(a) Dirac-sea screening (dotted: $\\lambda_C=\\hbar v/\\Delta$)", fontsize=8)
@@ -62,7 +75,7 @@ def main():
     ax = axs[1]
     cols = [C["black"], C["blue"], C["green"], C["orange"], C["red"]]
     for (name, _, _), col in zip(MODELS, cols):
-        ax.semilogx(GAPS * 1000, res[name]["Zc1"], "o-", ms=3, color=col, label=name)
+        ax.semilogx(gaps * 1000, res[name]["Zc1"], "o-", ms=3, color=col, label=name)
     mat = gapped_graphene(0.015, kappa=KAPPA)
     ax.axhline(KAPPA / (2 * mat.alpha0), color=C["grey"], lw=0.5, ls=":")
     ax.axhline((KAPPA + np.pi * mat.alpha0 / 2) / (2 * mat.alpha0), color=C["grey"], lw=0.5, ls="--")
@@ -81,18 +94,14 @@ def main():
     body = ["\\begin{tabular}{lcccccc}", "\\hline\\hline",
             "$2\\Delta$ (meV) & $\\lambda_C$ (nm) & bare & RPA & RPA, $D=30$ nm & RPA, $D=10$ nm & RPA, $D=3$ nm\\\\", "\\hline"]
     for gp in sel:
-        i = int(np.argmin(np.abs(GAPS - gp)))
+        i = int(np.argmin(np.abs(gaps - gp)))
         mat = gapped_graphene(gp / 2)
         cells = [f"{res[n]['Zc1'][i]:.3f}" for n, _, _ in MODELS]
         body.append(f"{gp * 1000:.0f} & {mat.compton:.1f} & " + " & ".join(cells) + "\\\\")
     body += ["\\hline\\hline", "\\end{tabular}"]
     write_table("tab_zc", "\n".join(body))
-    save_json({"gaps": GAPS, "results": res, "eps_ratio_at_m_2m": eps_ratio, "kappa": KAPPA, "d": D_IMP},
-              "s3_dirac_sea")
-    ratio = np.array(res["RPA"]["Zc1"]) / np.array(res["bare"]["Zc1"])
-    print("Zc(RPA)/Zc(bare):", np.round(ratio, 3))
-    print("eps(q=m/2, m, 2m)/kappa:", np.round(eps_ratio, 3))
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    plot() if "--plot" in sys.argv else main()
