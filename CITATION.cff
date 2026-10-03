@@ -6,6 +6,7 @@ authors:
     given-names: Elhadj
     affiliation: "Independent Researcher, Algiers, Algeria"
 version: 1.0.0
+doi: 10.5281/zenodo.23123320
 date-released: 2026-10-03
 license: MIT
 repository-code: "https://github.com/ehocine/dirac-collapse"

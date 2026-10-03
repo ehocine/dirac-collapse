@@ -5,7 +5,7 @@ Paper, code and data for
 > E. Hocine, *Atomic collapse in gapped two-dimensional Dirac materials: Screening by
 > the Dirac sea, gates, and resonance widths* (manuscript, 2026; REVTeX/PRB format)
 
-Repository: https://github.com/ehocine/dirac-collapse · License: MIT (see `LICENSE`) · Citation: `CITATION.cff`
+Repository: https://github.com/ehocine/dirac-collapse · Archive: [doi:10.5281/zenodo.23123320](https://doi.org/10.5281/zenodo.23123320) · License: MIT (see `LICENSE`) · Citation: `CITATION.cff`
 
 ## Quick start
 
