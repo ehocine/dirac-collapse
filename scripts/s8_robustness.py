@@ -1,4 +1,4 @@
-"""Robustness checks requested by a referee-style review.
+"""Fig. 4 + Tables IV and VI: robustness checks.
 
 (a) Is the Gamow prefactor c_G = ln(Gamma/Delta) + 2S universal?  We extract it
     for the cut-off and height regularisations over a wide range of m r0, i.e.

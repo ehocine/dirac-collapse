@@ -1,4 +1,4 @@
-"""Table I: validation of every numerical ingredient against closed forms.
+"""Tables I and II: validation of every numerical ingredient against closed forms.
 
 1. interband polarization Pi(q) vs direct evaluation of the bubble integral
 2. screened potentials vs closed forms (gapless RPA, gate image charge, Keldysh)

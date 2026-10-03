@@ -1,4 +1,4 @@
-"""Fig. 5: local density of states around the impurity (STM observable).
+"""Fig. 6: local density of states around the impurity (STM observable).
 
 Gapped graphene, 2 Delta = 100 meV, kappa = 2.5, d = 0.3 nm, Dirac-sea RPA.
 Total LDOS = 4 (spin x valley) x single-flavour LDOS summed over j.

@@ -4,14 +4,14 @@ title: "collapse2d: atomic collapse of charged impurities in gapped 2D Dirac mat
 authors:
   - family-names: Hocine
     given-names: Elhadj
-    affiliation: "Independent Researcher"
-version: 0.1.0
-date-released: 2026-10-02
+    affiliation: "Independent Researcher, Algiers, Algeria"
+version: 1.0.0
+date-released: 2026-10-03
 license: MIT
 repository-code: "https://github.com/ehocine/dirac-collapse"
 preferred-citation:
   type: article
-  title: "Atomic collapse in gapped two-dimensional Dirac materials: Dirac-sea screening, gates, and resonance widths"
+  title: "Atomic collapse in gapped two-dimensional Dirac materials: Screening by the Dirac sea, gates, and resonance widths"
   authors:
     - family-names: Hocine
       given-names: Elhadj

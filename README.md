@@ -2,8 +2,8 @@
 
 Paper, code and data for
 
-> E. Hocine, *Atomic collapse in gapped two-dimensional Dirac materials: Dirac-sea
-> screening, gates, and resonance widths* (manuscript, 2026; REVTeX/PRB format)
+> E. Hocine, *Atomic collapse in gapped two-dimensional Dirac materials: Screening by
+> the Dirac sea, gates, and resonance widths* (manuscript, 2026; REVTeX/PRB format)
 
 Repository: https://github.com/ehocine/dirac-collapse · License: MIT (see `LICENSE`) · Citation: `CITATION.cff`
 
@@ -15,6 +15,8 @@ make test                           # 13 regression tests (~1.5 min)
 # the scripts are independent; to use several cores:
 # cd scripts && for s in s*_*.py; do python3 $s & done; wait
 make data                           # all tables, figures, raw data (~1.5 h sequential on a laptop)
+# s3-s8 also redraw their figure or table from the saved data in seconds:
+# python3 scripts/s4_resonances.py --plot   (s3, s4, s5, s7: --plot; s6: --tables; s8: plot)
 make paper                          # compiles paper/main.tex if present (manuscript not included)
 ```
 
@@ -33,18 +35,18 @@ collapse2d/
   analysis.py     critical-coupling law and its constants, Gamow exponent, resonance tracking,
                   bound-state densities, LDOS
 scripts/
-  s1_validation.py        Tables 1, 2   validation against closed forms; Siegert vs real-axis fits
-  s2_critical_law.py      Fig. 1, Table 3  logarithmic law, constants, comparison with Wang et al. 2025
-  s3_dirac_sea.py         Fig. 2, Table 4  Z_c vs gap: bare / Dirac-sea RPA / gates
-  s4_resonances.py        Fig. 3, Table 5  diving level, Siegert widths, Gamow law
-  s7_gate_resonance.py    Fig. 4           resonance broadening by a metallic gate
-  s5_ldos.py              Fig. 5           LDOS maps and model STM spectra (`--plot` replots from data)
-  s6_materials.py         Table 8          material survey (incl. anisotropic-hBN sensitivity row)
-  s8_robustness.py        Fig. 4, Tables 4, 6  prefactor c_G vs beta_c; Z_c vs impurity height
+  s1_validation.py        Tables I, II      validation against closed forms; Siegert vs real-axis fits
+  s2_critical_law.py      Fig. 2, Table V   logarithmic law, constants, comparison with Wang et al. 2025
+  s3_dirac_sea.py         Fig. 1, Table III Z_c vs gap: bare / Dirac-sea RPA / gates
+  s4_resonances.py        Fig. 3, Table VII diving level, Siegert widths, Gamow law
+  s8_robustness.py        Fig. 4, Tables IV, VI  prefactor c_G vs beta_c; Z_c vs impurity height
+  s7_gate_resonance.py    Fig. 5            resonance broadening by a metallic gate
+  s5_ldos.py              Fig. 6            LDOS maps and model STM spectra
+  s6_materials.py         Table VIII        material survey (incl. anisotropic-hBN sensitivity row)
 tests/test_collapse2d.py
 data/            raw results (JSON) and run logs
-paper/           output folder: generated tables/ and figures/ (the manuscript itself is not
-                 distributed with the code)
+paper/           generated tables/ and figures/ (the manuscript itself is not distributed
+                 with the code)
 ```
 
 ## Main results

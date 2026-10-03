@@ -1,4 +1,4 @@
-"""Fig. 2 + Table II: the critical coupling for a regularised Coulomb centre.
+"""Fig. 2 + Table V: the critical coupling for a regularised Coulomb centre.
 
 beta_c(m r0) for the cutoff model (exact Bessel matching, mpmath) and for a
 charge at height d (numerical), compared with the leading-log law
