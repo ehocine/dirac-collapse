@@ -13,6 +13,8 @@ paper/*.bbl
 paper/*.blg
 paper/*Notes.bib
 
-# manuscript (kept outside the repository); tables and figures are
-# regenerated into paper/tables and paper/figures by the scripts
-paper/
+# manuscript (kept outside the repository); the generated tables and
+# figures in paper/tables and paper/figures are tracked
+paper/*
+!paper/tables/
+!paper/figures/
