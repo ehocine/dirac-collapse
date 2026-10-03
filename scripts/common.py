@@ -35,7 +35,7 @@ def savefig(fig, name):
 
 
 def _conv(o):
-    if isinstance(o, (np.floating, np.integer)):
+    if isinstance(o, (np.floating, np.integer, np.bool_)):
         return o.item()
     if isinstance(o, np.ndarray):
         return o.tolist()
